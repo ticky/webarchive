@@ -1,8 +1,8 @@
 use webarchive::Webarchive;
 
 fn main() {
-    let webarchive: Webarchive = plist::from_file("minidisc.webarchive")
-        .expect("failed to read minidisc.webarchive");
+    let webarchive: Webarchive = plist::from_file("psxdatacenter.webarchive")
+        .expect("failed to read psxdatacenter.webarchive");
 
-    println!("{:?}", webarchive);
+    webarchive.print_list();
 }
