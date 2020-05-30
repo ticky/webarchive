@@ -1,3 +1,35 @@
+//! Utilities for working with Apple's Web Archive file format,
+//! as produced by Safari 2 or later on macOS, Safari 4 or later on Windows,
+//! or Safari 13 or later on iOS and iPadOS.
+//! 
+//! ## Why Web Archive?
+//! 
+//! Web Archive files have been around since 2005, and are a way to save an
+//! entire web page, and all associated resources involved in displaying it,
+//! as a single file which can be saved to disk, reviewed or shared regardless
+//! of changes, removals or the state of the server which originally served it.
+//! 
+//! While not well supported outside of Apple platforms, and not supported by
+//! iOS until iOS 13 in 2019, the Web Archive is one of few formats designed
+//! for a user to simply open a page and expect it to work as the original did.
+//! One which came closest is [MHTML](https://en.wikipedia.org/wiki/MHTML),
+//! supported in older versions of Microsoft's Internet Explorer and with a
+//! similar approach to Web Archive, representing a web page in its entirety.
+//! 
+//! Alternatives aimed at professional or semi-professional archives work, such
+//! as [WARC](https://en.wikipedia.org/wiki/Web_ARChive) instead represent an
+//! entire browsing session and associated subresources, but require
+//! specialised software to view, and do not have the concept of a "main" page
+//! or resource. Web Archives, by contrast, open in a normal web browser and
+//! do not require the user to know which URL to select.
+//! 
+//! ## Okay, so what's the goal?
+//! 
+//! I aim for this to be an ergonomic API for reading, creating, and converting
+//! Web Archive files. I also intend to write a command line utility based on
+//! this API which allows bi-directional conversion between common formats and
+//! Web Archives.
+
 use serde::{Deserialize, Serialize};
 
 pub use plist::{
@@ -7,6 +39,8 @@ pub use plist::{
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+/// Represents an individual web resource which would be requested
+/// as part of displaying the page represented by the Web Archive file.
 pub struct WebResource {
     #[serde(rename = "WebResourceData", with = "serde_bytes")]
     /// The raw binary data of the resource.
@@ -56,6 +90,7 @@ pub struct WebResource {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+/// Represents an entire Web Archive file.
 pub struct WebArchive {
     #[serde(rename = "WebMainResource")]
     /// The main resource which the browser should display
