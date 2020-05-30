@@ -1,8 +1,8 @@
-use webarchive::Webarchive;
+use webarchive::WebArchive;
 
 fn main() {
-    let webarchive: Webarchive = plist::from_file("psxdatacenter.webarchive")
-        .expect("failed to read psxdatacenter.webarchive");
+    let webarchive: WebArchive = webarchive::from_file("psxdatacenter2.webarchive")
+        .expect("failed to read psxdatacenter2.webarchive");
 
     webarchive.print_list();
 }
