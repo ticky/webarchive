@@ -190,6 +190,25 @@ impl WebArchive {
     }
 }
 
+impl IntoIterator for WebArchive {
+    type Item = WebResource;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let chained = vec![self.main_resource].into_iter();
+
+        if let Some(subresources) = self.subresources {
+            chained = itertools::chain(chained, subresources.into_iter());
+        }
+
+        if let Some(subframe_archives) = self.subframe_archives {
+            chained = itertools::chain(chained, subframe_archives.into_iter());
+        }
+
+        chained
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
