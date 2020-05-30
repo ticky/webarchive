@@ -2,50 +2,6 @@
 //! as produced by Safari 2 or later on macOS, Safari 4 or later on Windows,
 //! or Safari 13 or later on iOS and iPadOS.
 //!
-//! ```rust
-//! use webarchive::{WebArchive, WebResource};
-//!
-//! let resource = WebResource {
-//!     url: "about:hello".to_string(),
-//!     data: "hello world".as_bytes().to_vec(),
-//!     mime_type: "text/plain".to_string(),
-//!     text_encoding_name: Some("utf-8".to_string()),
-//!     frame_name: None,
-//!     response: None,
-//! };
-//!
-//! let archive = WebArchive {
-//!     main_resource: resource,
-//!     subresources: None,
-//!     subframe_archives: None,
-//! };
-//!
-//! let mut buf: Vec<u8> = Vec::new();
-//!
-//! webarchive::to_writer_xml(&mut buf, &archive).expect("should write xml");
-//!
-//! assert_eq!(String::from_utf8(buf).expect("should contain utf-8"),
-//! r#"<?xml version="1.0" encoding="UTF-8"?>
-//! <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-//! <plist version="1.0">
-//! <dict>
-//! 	<key>WebMainResource</key>
-//! 	<dict>
-//! 		<key>WebResourceData</key>
-//! 		<data>
-//! 		aGVsbG8gd29ybGQ=
-//! 		</data>
-//! 		<key>WebResourceURL</key>
-//! 		<string>about:hello</string>
-//! 		<key>WebResourceMIMEType</key>
-//! 		<string>text/plain</string>
-//! 		<key>WebResourceTextEncodingName</key>
-//! 		<string>utf-8</string>
-//! 	</dict>
-//! </dict>
-//! </plist>"#);
-//! ```
-//!
 //! ## Why Web Archive?
 //!
 //! Web Archive files have been around since 2005, and are a way to save an
@@ -73,6 +29,53 @@
 //! Web Archive files. I also intend to write a command line utility based on
 //! this API which allows bi-directional conversion between common formats and
 //! Web Archives.
+//!
+//! ```rust
+//! use webarchive::{WebArchive, WebResource};
+//!
+//! let resource = WebResource {
+//!     url: "about:hello".to_string(),
+//!     data: "hello world".as_bytes().to_vec(),
+//!     mime_type: "text/plain".to_string(),
+//!     text_encoding_name: Some("utf-8".to_string()),
+//!     frame_name: None,
+//!     response: None,
+//! };
+//!
+//! let archive = WebArchive {
+//!     main_resource: resource,
+//!     subresources: None,
+//!     subframe_archives: None,
+//! };
+//!
+//! let mut buf: Vec<u8> = Vec::new();
+//!
+//! webarchive::to_writer_xml(&mut buf, &archive)
+//!     .expect("should write xml");
+//!
+//! assert_eq!(
+//!     String::from_utf8(buf).expect("should contain utf-8"),
+//!     r#"<?xml version="1.0" encoding="UTF-8"?>
+//! <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+//! <plist version="1.0">
+//! <dict>
+//! 	<key>WebMainResource</key>
+//! 	<dict>
+//! 		<key>WebResourceData</key>
+//! 		<data>
+//! 		aGVsbG8gd29ybGQ=
+//! 		</data>
+//! 		<key>WebResourceURL</key>
+//! 		<string>about:hello</string>
+//! 		<key>WebResourceMIMEType</key>
+//! 		<string>text/plain</string>
+//! 		<key>WebResourceTextEncodingName</key>
+//! 		<string>utf-8</string>
+//! 	</dict>
+//! </dict>
+//! </plist>"#
+//! );
+//! ```
 
 #![allow(clippy::tabs_in_doc_comments)]
 
