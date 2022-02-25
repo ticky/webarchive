@@ -1,6 +1,6 @@
 # webarchive
 
-[![crates.io](https://img.shields.io/crates/v/webarchive.svg)](https://crates.io/crates/webarchive) [![Rust](https://github.com/ticky/webarchive/actions/workflows/rust.yml/badge.svg)](https://github.com/ticky/webarchive/actions/workflows/rust.yml)
+[![crates.io](https://img.shields.io/crates/v/webarchive.svg)](https://crates.io/crates/webarchive) [![docs.rs](https://img.shields.io/docsrs/webarchive)](https://docs.rs/webarchive/) [![Rust](https://github.com/ticky/webarchive/actions/workflows/rust.yml/badge.svg)](https://github.com/ticky/webarchive/actions/workflows/rust.yml)
 
 Rust utilities for working with Apple's Web Archive file format,
 as produced by Safari 2 or later on macOS, Safari 4 or later on Windows,
