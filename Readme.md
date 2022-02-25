@@ -34,6 +34,58 @@ Web Archive files. I also intend to write a command line utility based on
 this API which allows bi-directional conversion between common formats and
 Web Archives.
 
+### Reading a webarchive
+
+```rust
+use webarchive::WebArchive;
+
+let archive: WebArchive = webarchive::from_file("fixtures/psxdatacenter.webarchive")?;
+
+/// main_resource is the resource which is opened by default
+assert_eq!(
+    archive.main_resource.url,
+    "http://psxdatacenter.com/ntsc-j_list.html"
+);
+assert_eq!(archive.main_resource.mime_type, "text/html");
+assert_eq!(
+    archive.main_resource.text_encoding_name,
+    Some("UTF-8".to_string())
+);
+assert_eq!(archive.main_resource.data.len(), 2171);
+assert!(archive.subresources.is_none());
+
+/// subframe_archives contains additional WebArchives for frames
+assert!(archive.subframe_archives.is_some());
+let subframe_archives = archive.subframe_archives.unwrap();
+assert_eq!(subframe_archives.len(), 4);
+
+assert_eq!(
+    subframe_archives[0].main_resource.url,
+    "http://psxdatacenter.com/banner.html"
+);
+assert_eq!(subframe_archives[0].main_resource.mime_type, "text/html");
+assert_eq!(
+    subframe_archives[0].main_resource.text_encoding_name,
+    Some("UTF-8".to_string())
+);
+assert_eq!(subframe_archives[0].main_resource.data.len(), 782);
+
+/// subresources are the files referenced by a given frame
+assert!(subframe_archives[0].subresources.is_some());
+let subresources = subframe_archives[0].subresources.as_ref().unwrap();
+assert_eq!(subresources.len(), 2);
+
+assert_eq!(
+    subresources[0].url,
+    "http://psxdatacenter.com/images/texgrey.jpg"
+);
+assert_eq!(subresources[0].mime_type, "image/jpeg");
+assert!(subresources[0].text_encoding_name.is_none());
+assert_eq!(subresources[0].data.len(), 107128);
+```
+
+### Creating a webarchive
+
 ```rust
 use webarchive::{WebArchive, WebResource};
 
@@ -54,11 +106,10 @@ let archive = WebArchive {
 
 let mut buf: Vec<u8> = Vec::new();
 
-webarchive::to_writer_xml(&mut buf, &archive)
-    .expect("should write xml");
+webarchive::to_writer_xml(&mut buf, &archive)?;
 
 assert_eq!(
-    String::from_utf8(buf).expect("should contain utf-8"),
+    String::from_utf8(buf)?,
     r#"<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
