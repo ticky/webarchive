@@ -223,28 +223,36 @@ pub struct WebArchive {
 
 impl WebArchive {
     pub fn print_list(&self) {
-        let empty_subresources: Vec<_> = vec![];
-        let empty_subframe_archives: Vec<_> = vec![];
-        let subresources: &Vec<WebResource> =
-            self.subresources.as_ref().unwrap_or(&empty_subresources);
-        let subframe_archives: &Vec<WebArchive> = self
-            .subframe_archives
-            .as_ref()
-            .unwrap_or(&empty_subframe_archives);
+        let subresource_count = match &self.subresources {
+            Some(subresources) => subresources.len(),
+            None => 0,
+        };
+
+        let subframe_archive_count = match &self.subframe_archives {
+            Some(subframe_archives) => subframe_archives.len(),
+            None => 0,
+        };
 
         println!(
-            "WebArchive of \"{}\": {} subresource(s)",
+            "WebArchive of \"{}\": {} subresource{}, {} subframe archive{}",
             self.main_resource.url,
-            subresources.len()
+            subresource_count,
+            if subresource_count == 1 { "" } else { "s" },
+            subframe_archive_count,
+            if subframe_archive_count == 1 { "" } else { "s" }
         );
 
-        subresources
-            .iter()
-            .for_each(|subresource| println!("  - \"{}\"", subresource.url));
+        if let Some(subresources) = &self.subresources {
+            subresources
+                .iter()
+                .for_each(|subresource| println!("  - \"{}\": {:?}, {} bytes", subresource.url, subresource.mime_type, subresource.data.len()));
+        }
 
-        subframe_archives
-            .iter()
-            .for_each(|subresource| subresource.print_list())
+        if let Some(webarchives) = &self.subframe_archives {
+            webarchives
+                .iter()
+                .for_each(|webarchive| webarchive.print_list());
+        }
     }
 }
 
