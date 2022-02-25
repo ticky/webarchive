@@ -108,3 +108,62 @@ fn main() -> Result<()> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use assert_cmd::Command;
+    use assert_fs::prelude::*;
+
+    const CROUTON_WEBARCHIVE: &[u8] = include_bytes!("../fixtures/crouton.webarchive");
+    const CROUTON_INDEX_SHTML: &[u8] =
+        include_bytes!("../fixtures/crouton.net/_unnamed_index.shtml");
+    const CROUTON_PNG: &[u8] = include_bytes!("../fixtures/crouton.net/crouton.png");
+
+    #[test]
+    fn list_crouton() {
+        let temp = assert_fs::TempDir::new().unwrap();
+
+        let input_file = temp.child("crouton.webarchive");
+        input_file
+            .write_binary(&CROUTON_WEBARCHIVE)
+            .expect("Couldn't write temporary file");
+
+        let mut cmd = Command::cargo_bin(assert_cmd::crate_name!()).unwrap();
+
+        let assert = cmd.arg("inspect").arg(input_file.path()).assert();
+
+        assert.success().stdout(
+            "WebArchive of \"https://crouton.net/\": 1 subresource(s)
+  - \"https://crouton.net/crouton.png\"
+",
+        );
+    }
+
+    #[test]
+    fn extract_crouton() {
+        let temp = assert_fs::TempDir::new().unwrap();
+
+        let input_file = temp.child("crouton.webarchive");
+        input_file
+            .write_binary(&CROUTON_WEBARCHIVE)
+            .expect("Couldn't write temporary file");
+
+        let mut cmd = Command::cargo_bin(assert_cmd::crate_name!()).unwrap();
+
+        let assert = cmd.arg("extract").arg(input_file.path()).assert();
+
+        assert.success().stdout(format!(
+            "Saving main resource...
+Writing file \"{}/crouton.net/_unnamed_index.shtml\"...
+Saving subresources...
+Writing file \"{}/crouton.net/crouton.png\"...
+",
+            temp.path().display(),
+            temp.path().display()
+        ));
+
+        temp.child("crouton.net/crouton.png").assert(CROUTON_PNG);
+        temp.child("crouton.net/_unnamed_index.shtml")
+            .assert(CROUTON_INDEX_SHTML);
+    }
+}
