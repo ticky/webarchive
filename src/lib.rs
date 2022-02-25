@@ -30,9 +30,41 @@
 //! this API which allows bi-directional conversion between common formats and
 //! Web Archives.
 //!
+//! ## Reading a webarchive
+//!
 //! ```rust
+//! # use anyhow::Result;
+//! use webarchive::WebArchive;
+//!
+//! # fn main() -> Result<()> {
+//! let archive: WebArchive = webarchive::from_file("fixtures/crouton.webarchive")?;
+//!
+//! assert_eq!(archive.main_resource.url, "https://crouton.net/");
+//! assert_eq!(archive.main_resource.mime_type, "text/html");
+//! assert_eq!(
+//!     archive.main_resource.text_encoding_name,
+//!     Some("UTF-8".to_string())
+//! );
+//! assert_eq!(archive.main_resource.data.len(), 134);
+//!
+//! let subresources = archive.subresources.unwrap();
+//! assert_eq!(subresources.len(), 1);
+//!
+//! assert_eq!(subresources[0].url, "https://crouton.net/crouton.png");
+//! assert_eq!(subresources[0].mime_type, "image/png");
+//! assert_eq!(subresources[0].text_encoding_name, None);
+//! assert_eq!(subresources[0].data.len(), 5182);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## Creating a webarchive
+//!
+//! ```rust
+//! # use anyhow::Result;
 //! use webarchive::{WebArchive, WebResource};
 //!
+//! # fn main() -> Result<()> {
 //! let resource = WebResource {
 //!     url: "about:hello".to_string(),
 //!     data: "hello world".as_bytes().to_vec(),
@@ -50,11 +82,10 @@
 //!
 //! let mut buf: Vec<u8> = Vec::new();
 //!
-//! webarchive::to_writer_xml(&mut buf, &archive)
-//!     .expect("should write xml");
+//! webarchive::to_writer_xml(&mut buf, &archive)?;
 //!
 //! assert_eq!(
-//!     String::from_utf8(buf).expect("should contain utf-8"),
+//!     String::from_utf8(buf)?,
 //!     r#"<?xml version="1.0" encoding="UTF-8"?>
 //! <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 //! <plist version="1.0">
@@ -75,6 +106,8 @@
 //! </dict>
 //! </plist>"#
 //! );
+//! # Ok(())
+//! # }
 //! ```
 
 #![allow(clippy::tabs_in_doc_comments)]
