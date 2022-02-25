@@ -56,6 +56,7 @@ fn save_archive(archive: WebArchive, inside: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
+/// Utility for inspecting or extracting a webarchive file
 #[derive(Debug, StructOpt)]
 enum Args {
     /// List the contents of a webarchive file
@@ -133,9 +134,7 @@ mod tests {
         let assert = cmd.arg("inspect").arg(input_file.path()).assert();
 
         assert.success().stdout(
-            "WebArchive of \"https://crouton.net/\": 1 subresource(s)
-  - \"https://crouton.net/crouton.png\"
-",
+            "WebArchive of \"https://crouton.net/\": 1 subresource(s)\n  - \"https://crouton.net/crouton.png\"\n",
         );
     }
 
@@ -153,11 +152,10 @@ mod tests {
         let assert = cmd.arg("extract").arg(input_file.path()).assert();
 
         assert.success().stdout(format!(
-            "Saving main resource...
-Writing file \"{}/crouton.net/_unnamed_index.shtml\"...
-Saving subresources...
-Writing file \"{}/crouton.net/crouton.png\"...
-",
+            "Saving main resource...\n\
+            Writing file \"{}/crouton.net/_unnamed_index.shtml\"...\n\
+            Saving subresources...\n\
+            Writing file \"{}/crouton.net/crouton.png\"...\n",
             temp.path().display(),
             temp.path().display()
         ));
