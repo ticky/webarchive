@@ -30,9 +30,51 @@ do not require the user to know which URL to select.
 ## Okay, so what's the goal?
 
 I aim for this to be an ergonomic API for reading, creating, and converting
-Web Archive files. I also intend to write a command line utility based on
-this API which allows bi-directional conversion between common formats and
-Web Archives.
+Web Archive files, and to expand the included command line utility to allow
+bi-directional conversion between common formats and Web Archives.
+
+## Usage
+
+### Command-line usage
+
+A command-line utility is provided, which can be installed by running:
+
+```shell
+cargo install webarchive
+```
+
+This utility can extract or inspect the contents of webarchive files.
+
+List the contents with `inspect`:
+
+```shell
+$ webarchive inspect fixtures/psxdatacenter.webarchive
+WebArchive of "http://psxdatacenter.com/ntsc-j_list.html": 0 subresource(s)
+WebArchive of "http://psxdatacenter.com/banner.html": 2 subresource(s)
+  - "http://psxdatacenter.com/images/texgrey.jpg"
+  - "http://psxdatacenter.com/images/logo.jpg"
+WebArchive of "http://psxdatacenter.com/nav.html": 16 subresource(s)
+  - "http://psxdatacenter.com/images/texgrey.jpg"
+  - "http://psxdatacenter.com/buttons/news1.gif"
+  - "http://psxdatacenter.com/buttons/inf1.gif"
+  - "http://psxdatacenter.com/buttons/emul1.gif"
+...
+```
+
+Or extract them to disk with `extract`:
+
+```shell
+$ webarchive extract fixtures/psxdatacenter.webarchive
+Saving main resource...
+Writing file "fixtures/psxdatacenter.com/ntsc-j_list.html"...
+Saving subframe archives...
+Saving main resource...
+Writing file "fixtures/psxdatacenter.com/banner.html"...
+Saving subresources...
+Writing file "fixtures/psxdatacenter.com/images/texgrey.jpg"...
+Writing file "fixtures/psxdatacenter.com/images/logo.jpg"...
+...
+```
 
 ### Reading a webarchive
 

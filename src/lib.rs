@@ -26,9 +26,8 @@
 //! ## Okay, so what's the goal?
 //!
 //! I aim for this to be an ergonomic API for reading, creating, and converting
-//! Web Archive files. I also intend to write a command line utility based on
-//! this API which allows bi-directional conversion between common formats and
-//! Web Archives.
+//! Web Archive files, and to expand the included command line utility to allow
+//! bi-directional conversion between common formats and Web Archives.
 //!
 //! ### Reading a webarchive
 //!
