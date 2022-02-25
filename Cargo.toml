@@ -11,7 +11,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-itertools = "0.9"
 mime_guess = "2.0"
 plist = "1.0"
 ruma-serde = "0.6"
