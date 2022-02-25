@@ -1,3 +1,4 @@
+use anyhow::Result;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use webarchive::{WebArchive, WebResource};
@@ -42,7 +43,7 @@ fn save(resource: WebResource, inside: &Path) -> std::io::Result<()> {
     println!("Writing file {:?}...", path);
     std::fs::create_dir_all(parent_path)?;
     let mut file = std::fs::File::create(path)?;
-    Ok(file.write_all(&resource.data)?)
+    file.write_all(&resource.data)
 }
 
 fn save_archive(archive: WebArchive, inside: &Path) -> std::io::Result<()> {
@@ -66,7 +67,7 @@ fn save_archive(archive: WebArchive, inside: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
-fn main() {
+fn main() -> Result<()> {
     let options = Options::from_args();
 
     println!("{:?}", options);
@@ -84,4 +85,6 @@ fn main() {
     };
 
     save_archive(webarchive, output).expect("could not save resources");
+
+    Ok(())
 }
