@@ -134,8 +134,8 @@ mod tests {
         let assert = cmd.arg("inspect").arg(input_file.path()).assert();
 
         assert.success().stdout(
-            "WebArchive of \"https://crouton.net/\": 1 subresource, 0 subframe archives\n  \
-            - \"https://crouton.net/crouton.png\": \"image/png\", 5182 bytes\n",
+            "WebArchive of \"https://crouton.net/\" (\"text/html\", 134 bytes): 1 subresource, 0 subframe archives totalling 5316 bytes\n  \
+            - \"https://crouton.net/crouton.png\" (\"image/png\", 5182 bytes)\n",
         );
     }
 

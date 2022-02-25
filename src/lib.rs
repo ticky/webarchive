@@ -222,6 +222,7 @@ pub struct WebArchive {
 }
 
 impl WebArchive {
+    /// Print a list of all contained resources and subframe archives
     pub fn print_list(&self) {
         let subresource_count = match &self.subresources {
             Some(subresources) => subresources.len(),
@@ -234,18 +235,26 @@ impl WebArchive {
         };
 
         println!(
-            "WebArchive of \"{}\": {} subresource{}, {} subframe archive{}",
+            "WebArchive of \"{}\" ({:?}, {} bytes): {} subresource{}, {} subframe archive{} totalling {} bytes",
             self.main_resource.url,
+            self.main_resource.mime_type,
+            self.main_resource.data.len(),
             subresource_count,
             if subresource_count == 1 { "" } else { "s" },
             subframe_archive_count,
-            if subframe_archive_count == 1 { "" } else { "s" }
+            if subframe_archive_count == 1 { "" } else { "s" },
+            self.total_size(),
         );
 
         if let Some(subresources) = &self.subresources {
-            subresources
-                .iter()
-                .for_each(|subresource| println!("  - \"{}\": {:?}, {} bytes", subresource.url, subresource.mime_type, subresource.data.len()));
+            subresources.iter().for_each(|subresource| {
+                println!(
+                    "  - \"{}\" ({:?}, {} bytes)",
+                    subresource.url,
+                    subresource.mime_type,
+                    subresource.data.len()
+                )
+            });
         }
 
         if let Some(webarchives) = &self.subframe_archives {
@@ -253,6 +262,29 @@ impl WebArchive {
                 .iter()
                 .for_each(|webarchive| webarchive.print_list());
         }
+    }
+
+    /// Get the total size of all contained resources in bytes.
+    ///
+    /// Does not include metadata or extra response information.
+    pub fn total_size(&self) -> usize {
+        let subresource_size = match &self.subresources {
+            Some(subresources) => subresources
+                .iter()
+                .map(|subresource| subresource.data.len())
+                .sum(),
+            None => 0,
+        };
+
+        let subframe_archive_size = match &self.subframe_archives {
+            Some(webarchives) => webarchives
+                .iter()
+                .map(|webarchive| webarchive.total_size())
+                .sum(),
+            None => 0,
+        };
+
+        self.main_resource.data.len() + subresource_size + subframe_archive_size
     }
 }
 
