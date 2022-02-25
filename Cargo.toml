@@ -12,6 +12,6 @@ edition = "2021"
 
 [dependencies]
 plist = "1.0"
-ruma-serde = "0.2"
+ruma-serde = "0.6"
 serde = { version = "1.0", features = ["derive"] }
 serde_bytes = "0.11"
