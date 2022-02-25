@@ -151,11 +151,11 @@ pub struct WebArchive {
 
     #[serde(rename = "WebSubresources")]
     /// List of subresources which the page may reference.
-    /// These subresources will be loaded instead of the live
-    /// version on the web if they match a requested resource.
     ///
-    /// If a subresource is not provided by the webarchive
-    /// file, the live version will be loaded from the network.
+    /// In Safari, these subresources are loaded in place of the
+    /// live version from the web if they match a requested resource.
+    /// If a requested subresource is not provided by the webarchive
+    /// file, the live version is instead loaded from the network.
     pub subresources: Option<Vec<WebResource>>,
 
     #[serde(rename = "WebSubframeArchives")]
