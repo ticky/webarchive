@@ -1,19 +1,7 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use webarchive::{WebArchive, WebResource};
-
-#[derive(StructOpt, Debug)]
-#[structopt()]
-struct Options {
-    #[structopt(parse(from_os_str))]
-    /// File or folder to convert or inspect
-    input: PathBuf,
-
-    #[structopt(short, long, parse(from_os_str))]
-    /// File or folder name to output to if converting
-    output: Option<PathBuf>,
-}
 
 fn save(resource: WebResource, inside: &Path) -> std::io::Result<()> {
     use std::io::Write;
@@ -39,11 +27,12 @@ fn save(resource: WebResource, inside: &Path) -> std::io::Result<()> {
     }
 
     let path = inside.join(&url);
-    let parent_path = path.parent().expect("Could not get parent dir");
+    let parent_path = path.parent().expect("Could not get parent directory");
+
     println!("Writing file {:?}...", path);
+
     std::fs::create_dir_all(parent_path)?;
-    let mut file = std::fs::File::create(path)?;
-    file.write_all(&resource.data)
+    std::fs::File::create(path)?.write_all(&resource.data)
 }
 
 fn save_archive(archive: WebArchive, inside: &Path) -> std::io::Result<()> {
@@ -67,24 +56,55 @@ fn save_archive(archive: WebArchive, inside: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
+#[derive(Debug, StructOpt)]
+enum Args {
+    /// List the contents of a webarchive file
+    Inspect {
+        #[structopt(parse(from_os_str))]
+        /// File or folder to inspect
+        input: PathBuf,
+    },
+
+    /// Extract the contents of a webarchive file to individual files
+    Extract {
+        #[structopt(parse(from_os_str))]
+        /// File or folder to convert
+        input: PathBuf,
+
+        #[structopt(short, long, parse(from_os_str))]
+        /// File or folder name to output to.
+        ///
+        /// If omitted, files will be written to
+        /// the folder containing the input file.
+        output: Option<PathBuf>,
+    },
+}
+
 fn main() -> Result<()> {
-    let options = Options::from_args();
+    let args = Args::from_args();
 
-    println!("{:?}", options);
+    match args {
+        Args::Inspect { input } => {
+            let webarchive: WebArchive = webarchive::from_file(&input)
+                .with_context(|| format!("failed to read {:?}", input))?;
 
-    // TODO: Check file type, remove this "expect"
-    let webarchive: WebArchive = webarchive::from_file(&options.input)
-        .unwrap_or_else(|_| panic!("failed to read {:?}", options.input));
+            webarchive.print_list();
 
-    let output = match &options.output {
-        Some(path) => path,
-        None => options
-            .input
-            .parent()
-            .expect("Could not get an output directory"),
-    };
+            Ok(())
+        }
 
-    save_archive(webarchive, output).expect("could not save resources");
+        Args::Extract { input, output } => {
+            let webarchive: WebArchive = webarchive::from_file(&input)
+                .with_context(|| format!("failed to read {:?}", input))?;
 
-    Ok(())
+            let output = match &output {
+                Some(path) => path,
+                None => input
+                    .parent()
+                    .context("Could not get an output directory")?,
+            };
+
+            save_archive(webarchive, output).context("Saving resources")
+        }
+    }
 }
