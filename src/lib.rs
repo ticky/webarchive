@@ -30,35 +30,61 @@
 //! this API which allows bi-directional conversion between common formats and
 //! Web Archives.
 //!
-//! ## Reading a webarchive
+//! ### Reading a webarchive
 //!
 //! ```rust
 //! # use anyhow::Result;
 //! use webarchive::WebArchive;
 //!
 //! # fn main() -> Result<()> {
-//! let archive: WebArchive = webarchive::from_file("fixtures/crouton.webarchive")?;
+//! let archive: WebArchive = webarchive::from_file("fixtures/psxdatacenter.webarchive")?;
 //!
-//! assert_eq!(archive.main_resource.url, "https://crouton.net/");
+//! /// main_resource is the resource which is opened by default
+//! assert_eq!(
+//!     archive.main_resource.url,
+//!     "http://psxdatacenter.com/ntsc-j_list.html"
+//! );
 //! assert_eq!(archive.main_resource.mime_type, "text/html");
 //! assert_eq!(
 //!     archive.main_resource.text_encoding_name,
 //!     Some("UTF-8".to_string())
 //! );
-//! assert_eq!(archive.main_resource.data.len(), 134);
+//! assert_eq!(archive.main_resource.data.len(), 2171);
+//! assert!(archive.subresources.is_none());
 //!
-//! let subresources = archive.subresources.unwrap();
-//! assert_eq!(subresources.len(), 1);
+//! /// subframe_archives contains additional WebArchives for frames
+//! assert!(archive.subframe_archives.is_some());
+//! let subframe_archives = archive.subframe_archives.unwrap();
+//! assert_eq!(subframe_archives.len(), 4);
 //!
-//! assert_eq!(subresources[0].url, "https://crouton.net/crouton.png");
-//! assert_eq!(subresources[0].mime_type, "image/png");
-//! assert_eq!(subresources[0].text_encoding_name, None);
-//! assert_eq!(subresources[0].data.len(), 5182);
+//! assert_eq!(
+//!     subframe_archives[0].main_resource.url,
+//!     "http://psxdatacenter.com/banner.html"
+//! );
+//! assert_eq!(subframe_archives[0].main_resource.mime_type, "text/html");
+//! assert_eq!(
+//!     subframe_archives[0].main_resource.text_encoding_name,
+//!     Some("UTF-8".to_string())
+//! );
+//! assert_eq!(subframe_archives[0].main_resource.data.len(), 782);
+//!
+//! /// subresources are the files referenced by a given frame
+//! assert!(subframe_archives[0].subresources.is_some());
+//! let subresources = subframe_archives[0].subresources.as_ref().unwrap();
+//! assert_eq!(subresources.len(), 2);
+//!
+//! assert_eq!(
+//!     subresources[0].url,
+//!     "http://psxdatacenter.com/images/texgrey.jpg"
+//! );
+//! assert_eq!(subresources[0].mime_type, "image/jpeg");
+//! assert!(subresources[0].text_encoding_name.is_none());
+//! assert_eq!(subresources[0].data.len(), 107128);
 //! # Ok(())
 //! # }
 //! ```
 //!
-//! ## Creating a webarchive
+//! ### Creating a webarchive
 //!
 //! ```rust
 //! # use anyhow::Result;
