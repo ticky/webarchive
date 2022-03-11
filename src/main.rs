@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use std::path::{Path, PathBuf};
-use clap::StructOpt;
+use clap::Parser;
 use webarchive::{WebArchive, WebResource};
 
 fn save(resource: WebResource, inside: &Path) -> std::io::Result<()> {
@@ -57,7 +57,8 @@ fn save_archive(archive: WebArchive, inside: &Path) -> std::io::Result<()> {
 }
 
 /// Utility for inspecting or extracting a webarchive file
-#[derive(Debug, StructOpt)]
+#[derive(Debug, Parser)]
+#[clap(version)]
 enum Args {
     /// List the contents of a webarchive file
     Inspect {
