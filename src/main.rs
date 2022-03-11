@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use std::path::{Path, PathBuf};
-use structopt::StructOpt;
+use clap::StructOpt;
 use webarchive::{WebArchive, WebResource};
 
 fn save(resource: WebResource, inside: &Path) -> std::io::Result<()> {
@@ -61,18 +61,18 @@ fn save_archive(archive: WebArchive, inside: &Path) -> std::io::Result<()> {
 enum Args {
     /// List the contents of a webarchive file
     Inspect {
-        #[structopt(parse(from_os_str))]
+        #[clap(parse(from_os_str))]
         /// File or folder to inspect
         input: PathBuf,
     },
 
     /// Extract the contents of a webarchive file to individual files
     Extract {
-        #[structopt(parse(from_os_str))]
+        #[clap(parse(from_os_str))]
         /// File or folder to convert
         input: PathBuf,
 
-        #[structopt(short, long, parse(from_os_str))]
+        #[clap(short, long, parse(from_os_str))]
         /// File or folder name to output to.
         ///
         /// If omitted, files will be written to
@@ -82,7 +82,7 @@ enum Args {
 }
 
 fn main() -> Result<()> {
-    let args = Args::from_args();
+    let args = Args::parse();
 
     match args {
         Args::Inspect { input } => {
